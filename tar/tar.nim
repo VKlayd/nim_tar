@@ -8,7 +8,6 @@ proc untar*(filename: string, destdir: string): bool =
     let file = open(filename)
     var emptyar: array[512,uint8]
 
-    let out_dir = "./1/"
     var emptyblocks = 0
     while true:
         if emptyblocks == 2:
@@ -32,7 +31,7 @@ proc untar*(filename: string, destdir: string): bool =
             break;
         echo name
         if buf[156].char == '5':
-            createDir(out_dir&name)
+            createDir(destdir & name)
 
         var sizei = parseOctInt(size)
         var steps :int
@@ -40,7 +39,7 @@ proc untar*(filename: string, destdir: string): bool =
         if (sizei mod 512)>0:
             steps+=1
         if buf[156].char == '0' or buf[156].char=='\0':
-            let file_out = open(out_dir&name,fmWrite)
+            let file_out = open(destdir & name,fmWrite)
             block write_file_block:
                 for i in 1..steps:
                     var a:array[512,uint8]
