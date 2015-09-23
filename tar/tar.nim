@@ -9,6 +9,7 @@ proc untar*(filename: string, destdir: string): bool =
     var emptyar: array[512,uint8]
 
     var emptyblocks = 0
+    echo "try unpack " & filename & " into " & destdir
     while true:
         if emptyblocks == 2:
             echo "finished"
@@ -31,7 +32,8 @@ proc untar*(filename: string, destdir: string): bool =
             break;
         echo name
         if buf[156].char == '5':
-            createDir(destdir & name)
+            echo "create dir " & destdir & "/" & name
+            createDir(destdir & "/" & name)
 
         var sizei = parseOctInt(size)
         var steps :int
@@ -39,7 +41,13 @@ proc untar*(filename: string, destdir: string): bool =
         if (sizei mod 512)>0:
             steps+=1
         if buf[156].char == '0' or buf[156].char=='\0':
-            let file_out = open(destdir & name,fmWrite)
+            var s_dir = name
+            let place = name.rfind('/')
+            s_dir.delete(place,s_dir.high)
+            echo "create subdir " & destdir & "/" & s_dir
+            createDir(destdir & "/" & s_dir)
+            echo "create file " & destdir & "/" & name
+            let file_out = open(destdir & "/" & name,fmWrite)
             block write_file_block:
                 for i in 1..steps:
                     var a:array[512,uint8]
